@@ -1,4 +1,11 @@
-# ![btop++](Img/logo.png)
+# ![btop++ Magisk module for arm](Img/logo.png)
+This Magisk module allows running BTOP++ on Android/FireOS (32bit) over ADB or SSH.  There was some glitchiness with keyboard and mouse input, so this release runs BTOP++ through tmux to remedy that.  BTOP++ was also patched to detect I/O stats on Amlogic devices.  And a wrapper was added to the binary to detect attached USB drives.
+
+This module is based on bnsmb's [module](https://xdaforums.com/t/module-magisk-modules-with-unix-binaries-compiled-for-the-android-os.4687095/) that supports more CPU architectures including Android 64bit. 
+
+
+
+## btop++
 
 <a href="https://repology.org/project/btop/versions">
     <img src="https://repology.org/badge/vertical-allrepos/btop.svg" alt="Packaging status" align="right">
