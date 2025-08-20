@@ -1,0 +1,42 @@
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export TMUX_TMPDIR=/data/local/tmp/
+export TERMINFO=/system/etc/terminfo
+HOME=/data/local/tmp
+
+CONFIG_FILE="/data/local/tmp/.config/btop/btop.conf"
+
+# Build the tmux command with disks_filter update
+TMUX_CMD='
+# Update disks_filter for /mnt/media_rw
+CURRENT_MEDIA_RW=$(awk '\''$2 ~ /^\/mnt\/media_rw\// { print $2 }'\'' /proc/mounts | tr "\n" " ")
+if grep -q "^disks_filter" "'"$CONFIG_FILE"'"; then
+    OTHER_DISKS=$(grep "^disks_filter" "'"$CONFIG_FILE"'" | \
+                  sed '\''s/disks_filter *= *"//'\'' | sed '\''s/"//'\'' | tr " " "\n" | \
+                  grep -v "^/mnt/media_rw/" | tr "\n" " ")
+else
+    OTHER_DISKS=""
+fi
+ALL_DISKS="$OTHER_DISKS $CURRENT_MEDIA_RW"
+ALL_DISKS=$(echo "$ALL_DISKS" | xargs)
+if grep -q "^disks_filter" "'"$CONFIG_FILE"'"; then
+    sed -i "s|^disks_filter.*|disks_filter = \"$ALL_DISKS\"|" "'"$CONFIG_FILE"'"
+else
+    echo "disks_filter = \"$ALL_DISKS\"" >> "'"$CONFIG_FILE"'"
+fi
+
+# Start btop in tmux
+tmux attach -t mysession 2>/dev/null || {
+    tmux new -s mysession -d env HOME=/data/local/tmp /system/bin/btop.bin --force-utf "$@"
+    tmux set-option -t mysession status off
+    tmux set-option -t mysession -ga terminal-overrides ",*256col*:Tc"
+    tmux attach -t mysession
+}
+'
+
+# Run tmux + disks update with or without su depending on user
+if [ "$(id -u)" -ne 0 ]; then
+    su -c "$TMUX_CMD"
+else
+    eval "$TMUX_CMD"
+fi

@@ -1,0 +1,6 @@
+id=btop
+name=btop for Android
+version=v1.4.4
+versionCode=3
+author=Author of btop: Jakob P. Liljenberg 
+description=static btop++ binary for Android, run through Tmux
